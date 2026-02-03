@@ -1,0 +1,14 @@
+{
+  "id": "nodebb-plugin-post-fields-logger",
+  "name": "Post Fields Logger",
+  "description": "A simple plugin that logs when filter:post.getFields hook fires",
+  "url": "https://github.com/nodebb/nodebb-plugin-post-fields-logger",
+  "library": "./index.js",
+  "hooks": [
+    {
+      "hook": "filter:post.getFields",
+      "method": "onPostGetFields"
+    }
+  ]
+}
+

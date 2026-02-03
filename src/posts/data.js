@@ -12,6 +12,7 @@ const intFields = [
 
 module.exports = function (Posts) {
 	Posts.getPostsFields = async function (pids, fields) {
+		console.log('Marcus');
 		if (!Array.isArray(pids) || !pids.length) {
 			return [];
 		}
