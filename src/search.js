@@ -198,7 +198,7 @@ async function searchInBookmarks(data, searchCids, searchUids) {
 			pids = await posts.filterPidsByUid(pids, searchUids);
 		}
 		if (query) {
-			const tokens = String(query).split(' ');
+			const queryStr = String(query);
 			const postData = await db.getObjectsFields(pids.map(pid => `post:${pid}`), ['content', 'tid']);
 			const tids = _.uniq(postData.map(p => p.tid));
 			const topicData = await db.getObjectsFields(tids.map(tid => `topic:${tid}`), ['title']);
@@ -206,6 +206,11 @@ async function searchInBookmarks(data, searchCids, searchUids) {
 			pids = pids.filter((pid, i) => {
 				const content = String(postData[i].content);
 				const title = String(tidToTopic[postData[i].tid].title);
+				if (matchWords === 'contains') {
+					const needle = queryStr.toLowerCase();
+					return content.toLowerCase().includes(needle) || title.toLowerCase().includes(needle);
+				}
+				const tokens = queryStr.split(' ');
 				const method = (matchWords === 'any' ? 'some' : 'every');
 				return tokens[method](
 					token => content.includes(token) || title.includes(token)

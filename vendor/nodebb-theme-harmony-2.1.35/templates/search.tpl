@@ -24,6 +24,7 @@
 				<select id="match-words-filter" name="matchWords" class="post-search-item form-select text-sm py-2 ps-2 pe-3">
 					<option value="all">[[search:match-all-words]]</option>
 					<option value="any">[[search:match-any-word]]</option>
+					<option value="contains">[[search:match-contains]]</option>
 				</select>
 
 				<select id="show-results-as" name="showAs" class="post-search-item form-select text-sm py-2 ps-2 pe-3">

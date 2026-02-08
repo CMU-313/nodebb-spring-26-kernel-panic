@@ -22,6 +22,7 @@
     "match-words": "Match words",
     "match-all-words": "Match all words",
     "match-any-word": "Match any word",
+    "match-contains": "Contains",
     "all": "All",
     "any": "Any",
     "posted-by": "Posted by",
