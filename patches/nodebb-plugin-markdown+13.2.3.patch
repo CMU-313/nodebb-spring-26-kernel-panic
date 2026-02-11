@@ -1,0 +1,55 @@
+diff --git a/node_modules/nodebb-plugin-markdown/public/js/markdown.js b/node_modules/nodebb-plugin-markdown/public/js/markdown.js
+index ae4091f..c90f857 100644
+--- a/node_modules/nodebb-plugin-markdown/public/js/markdown.js
++++ b/node_modules/nodebb-plugin-markdown/public/js/markdown.js
+@@ -207,6 +207,17 @@ export function prepareFormattingTools() {
+ 						);
+ 					}
+ 				});
++
++				formatting.addButtonDispatch('latex', function (textarea, selectionStart, selectionEnd) {
++					// TODO: open LaTeX editor modal
++					require(['hooks'], function (hooks) {
++						hooks.fire('action:composer.latex-editor.open', {
++							textarea: textarea,
++							selectionStart: selectionStart,
++							selectionEnd: selectionEnd,
++						});
++					});
++				});
+ 			});
+ 		}
+ 	});
+diff --git a/node_modules/nodebb-plugin-markdown/public/scss/default.scss b/node_modules/nodebb-plugin-markdown/public/scss/default.scss
+index 88d319a..6d86e96 100644
+--- a/node_modules/nodebb-plugin-markdown/public/scss/default.scss
++++ b/node_modules/nodebb-plugin-markdown/public/scss/default.scss
+@@ -72,3 +72,27 @@ a.plugin-markdown-hidden-link {
+ 		border-radius: var(--bs-border-radius) !important;
+ 	}
+ }
++
++// LaTeX logo button in composer toolbar
++.formatting-bar .latex-logo {
++	font-family: 'CMU Serif', 'Latin Modern Roman', 'Computer Modern', Georgia, 'Times New Roman', serif;
++	font-style: normal;
++	font-weight: normal;
++	font-size: 1em;
++	letter-spacing: 0.01em;
++	white-space: nowrap;
++
++	sup {
++		font-size: 0.75em;
++		vertical-align: 0.35em;
++		margin-left: -0.3em;
++		margin-right: -0.12em;
++	}
++
++	sub {
++		font-size: 0.85em;
++		vertical-align: -0.3em;
++		margin-left: -0.12em;
++		margin-right: -0.05em;
++	}
++}
+\ No newline at end of file
