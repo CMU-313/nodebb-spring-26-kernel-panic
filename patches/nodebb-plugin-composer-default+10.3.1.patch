@@ -1,5 +1,5 @@
 diff --git a/node_modules/nodebb-plugin-composer-default/static/templates/partials/composer-formatting.tpl b/node_modules/nodebb-plugin-composer-default/static/templates/partials/composer-formatting.tpl
-index 5b148ec..60a68ad 100644
+index 5b148ec..8b48fb0 100644
 --- a/node_modules/nodebb-plugin-composer-default/static/templates/partials/composer-formatting.tpl
 +++ b/node_modules/nodebb-plugin-composer-default/static/templates/partials/composer-formatting.tpl
 @@ -53,6 +53,12 @@
@@ -8,7 +8,7 @@ index 5b148ec..60a68ad 100644
  
 +		<li title="LaTeX Editor">
 +			<button data-format="latex" class="btn btn-sm btn-link text-reset" aria-label="LaTeX Editor">
-+				<span class="latex-logo">L<sup>A</sup>T<sub>E</sub>X</span>
++				<span class="latex-logo">LaTeX</span>
 +			</button>
 +		</li>
 +
