@@ -1,0 +1,8 @@
+{
+  "name": "nodebb-plugin-composer-latex",
+  "version": "1.0.0",
+  "description": "Adds a LaTeX button to the composer toolbar (wraps selection in $$...$$)",
+  "main": "library.js",
+  "keywords": ["nodebb", "plugin", "composer", "latex", "math"],
+  "license": "MIT"
+}

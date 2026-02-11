@@ -103,7 +103,6 @@
 	"composer.formatting.code": "Code",
 	"composer.formatting.link": "Link",
 	"composer.formatting.picture": "Image Link",
-	"composer.formatting.latex": "LaTeX (math)",
 	"composer.upload-picture": "Upload Image",
 	"composer.upload-file": "Upload File",
 	"composer.zen-mode": "Zen Mode",
