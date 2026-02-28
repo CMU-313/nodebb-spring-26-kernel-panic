@@ -127,6 +127,9 @@
 								<!-- IMPORT partials/topic/browsing-users.tpl -->
 								</div>
 								{{{ end }}}
+								<div class="d-flex flex-column ps-2 hidden-xs" style="min-width: 170px;">
+								<!-- IMPORT partials/topic/respondents.tpl -->
+								</div>
 							</div>
 						</div>
 					</div>
