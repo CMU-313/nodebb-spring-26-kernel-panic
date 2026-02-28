@@ -136,6 +136,11 @@ topicsController.get = async function getTopic(req, res, next) {
 
 	topicData.author = author;
 	topicData.crossposts = crossposts;
+
+	// get list of users who responded to this topic
+	const respondentUids = await topics.getUids(tid);
+	const respondents = await user.getUsersFields(respondentUids, ['uid', 'username', 'userslug', 'picture']);
+	topicData.respondents = respondents;
 	topicData.pagination = pagination.create(currentPage, pageCount, req.query);
 	topicData.pagination.rel.forEach((rel) => {
 		rel.href = `${url}/topic/${topicData.slug}${rel.href}`;
