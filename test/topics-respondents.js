@@ -96,4 +96,65 @@ describe('Topic Respondents', () => {
 		assert(names.includes('resp_user1'));
 		assert(names.includes('resp_user2'));
 	});
+
+	it('should return an empty array for a non-existent topic', async () => {
+		const uids = await topics.getUids(999999);
+		assert(Array.isArray(uids));
+		assert.strictEqual(uids.length, 0);
+	});
+
+	it('should return uids as strings', async () => {
+		const uids = await topics.getUids(topicId);
+		for (const uid of uids) {
+			assert.strictEqual(typeof uid, 'string');
+		}
+	});
+
+	it('should update respondents when a new user replies', async () => {
+		const user3Uid = await User.create({ username: 'resp_user3' });
+		const uidsBefore = await topics.getUids(topicId);
+		assert(!uidsBefore.includes(String(user3Uid)));
+
+		await topics.reply({ uid: user3Uid, content: 'Reply from user3', tid: topicId });
+
+		const uidsAfter = await topics.getUids(topicId);
+		assert(uidsAfter.includes(String(user3Uid)));
+		assert.strictEqual(uidsAfter.length, uidsBefore.length + 1);
+	});
+
+	it('should track respondents independently across different topics', async () => {
+		const result = await topics.post({
+			uid: user1Uid,
+			title: 'Second Test Topic',
+			content: 'Another topic',
+			cid: categoryObj.cid,
+		});
+		const secondTopicId = result.topicData.tid;
+
+		const uids = await topics.getUids(secondTopicId);
+		assert.strictEqual(uids.length, 1);
+		assert(uids.includes(String(user1Uid)));
+
+		// original topic should be unaffected
+		const originalUids = await topics.getUids(topicId);
+		assert(originalUids.length > 1);
+	});
+
+	it('should return respondents with valid user data fields', async () => {
+		const uids = await topics.getUids(topicId);
+		const users = await User.getUsersFields(uids, ['uid', 'username', 'userslug', 'picture']);
+
+		for (const u of users) {
+			assert(u.hasOwnProperty('uid'));
+			assert(u.hasOwnProperty('username'));
+			assert(u.hasOwnProperty('userslug'));
+			assert(u.hasOwnProperty('picture'));
+		}
+	});
+
+	it('should not include guest uid (0) as a respondent', async () => {
+		const uids = await topics.getUids(topicId);
+		assert(!uids.includes('0'));
+		assert(!uids.includes(0));
+	});
 });
