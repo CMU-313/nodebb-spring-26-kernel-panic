@@ -82,3 +82,13 @@ Use this template when describing a new or modified feature so reviewers and tes
 	- **addMathJaxScript tests:** Verify that MathJax config and script are injected into `templateData.useCustomHTML` with the expected content (mathjax, script, cdn.jsdelivr.net); that injection appends to existing `useCustomHTML`; and that nothing is done when `templateData` is missing.
 	- These unit tests cover the backend hooks that power the LaTeX feature. The frontend button dispatch and MathJax client-side behavior are exercised via manual/end-to-end testing, which is appropriate because they depend on the NodeBB composer UI and DOM. Together, the tests ensure the plugin integrates correctly with NodeBB's formatting and header middleware, and that the math rendering pipeline is correctly configured.
 
+
+
+## Listing Responders to a Post
+
+- **Feature:** A list containing all the users that responded to a post.
+- **Summary:** A short paragraph explaining what the feature does and why it was added.
+- **How it works:** Technical explanation of the design and flow (components touched, data flow, important edge cases).
+- **How to test:** Step-by-step manual test instructions and any automated test commands.
+- **Tests:** Link(s) to the actual automated test files that cover this feature.
+- **Why tests are sufficient:** Short rationale describing what the tests cover and any remaining gaps.
