@@ -71,6 +71,7 @@ package-lock.json
 *.mongodb
 link-plugins.sh
 test.sh
+retire-report.json
 
 .docker/**
 !**/.gitkeep
