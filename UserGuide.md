@@ -1,4 +1,8 @@
-## Anonymous Posts
+## Deployment
+
+- Our NodeBB deployment hosted by Linux can be found here: http://17313-team13.s3d.cmu.edu:4567/
+
+## Feature 1: Anonymous Posts
 
 - **Feature:** Per-post anonymous posting that hides the author's identity from regular users.
 - **Summary:** When posting, a checkbox can be selected to post anonymously. Posts are shown as "Anonymous" to non-privileged viewers (regular users). Administrators and moderators see the original poster information. The plugin implements a two-stage hook flow to mask identities after NodeBB populates user data.
@@ -34,7 +38,7 @@
 		- **Edge Cases:** String/boolean type coercion for Redis storage ("true" as truthy), false/0 values not triggering masking, double-processing protection (`_originalUid`/`_originalUser`/`_originalHandle` preservation), missing caller context defaults to masking, handle field conditional setting, and `ANONYMOUS_USER` constant immutability.
 	- Together, the tests ensure that posts created with the anonymous flag are properly stored and retrieved with correct visibility behavior based on viewer privileges throughout the entire system lifecycle.
 
-## LaTeX Integration and Testing
+## Feature 2: LaTeX Integration and Testing
 
 - **Feature:** LaTeX button in the composer toolbar and MathJax rendering for math equations in posts and topics.
 - **Summary:** Adds a LaTeX button to the NodeBB composer that wraps selected text in `$$` delimiters (or inserts `$$ $$` when nothing is selected) for display math, and injects MathJax from a CDN so that LaTeX/TeX equations render correctly in topic views and composer preview.
@@ -71,7 +75,7 @@
 
 
 
-## Listing Respondents to a Post
+## Feature 3: Listing Respondents to a Post
 
 - **Feature:** A list containing all the users that responded to a post.
 - **Summary:** When someone views a topic page, a small widget in the sidebar lists all unique users who have posted in that topic (the original author and anyone who replied). Each entry shows the user’s avatar and username, as well as links to their profile. This should allow the instructor to, for example, be able to grade the responses quickly.
