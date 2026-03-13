@@ -1,4 +1,8 @@
-## Anonymous Posts
+## Deployment
+
+- Our NodeBB deployment hosted by Linux can be found here: http://17313-team13.s3d.cmu.edu:4567/
+
+## Feature 1: Anonymous Posts
 
 - **Feature:** Per-post anonymous posting that hides the author's identity from regular users.
 - **Summary:** When posting, a checkbox can be selected to post anonymously. Posts are shown as "Anonymous" to non-privileged viewers (regular users). Administrators and moderators see the original poster information. The plugin implements a two-stage hook flow to mask identities after NodeBB populates user data.
@@ -34,7 +38,7 @@
 		- **Edge Cases:** String/boolean type coercion for Redis storage ("true" as truthy), false/0 values not triggering masking, double-processing protection (`_originalUid`/`_originalUser`/`_originalHandle` preservation), missing caller context defaults to masking, handle field conditional setting, and `ANONYMOUS_USER` constant immutability.
 	- Together, the tests ensure that posts created with the anonymous flag are properly stored and retrieved with correct visibility behavior based on viewer privileges throughout the entire system lifecycle.
 
-## LaTeX Integration and Testing
+## Feature 2: LaTeX Integration and Testing
 
 - **Feature:** LaTeX button in the composer toolbar and MathJax rendering for math equations in posts and topics.
 - **Summary:** Adds a LaTeX button to the NodeBB composer that wraps selected text in `$$` delimiters (or inserts `$$ $$` when nothing is selected) for display math, and injects MathJax from a CDN so that LaTeX/TeX equations render correctly in topic views and composer preview.
@@ -70,18 +74,7 @@
 	- These unit tests cover the backend hooks that power the LaTeX feature. The frontend button dispatch and MathJax client-side behavior are exercised via manual/end-to-end testing, which is appropriate because they depend on the NodeBB composer UI and DOM. Together, the tests ensure the plugin integrates correctly with NodeBB's formatting and header middleware, and that the math rendering pipeline is correctly configured.
 
 
-
-## Listing Responders to a Post
-
-- **Feature:** A list containing all the users that responded to a post.
-- **Summary:** A short paragraph explaining what the feature does and why it was added.
-- **How it works:** Technical explanation of the design and flow (components touched, data flow, important edge cases).
-- **How to test:** Step-by-step manual test instructions and any automated test commands.
-- **Tests:** Link(s) to the actual automated test files that cover this feature.
-- **Why tests are sufficient:** Short rationale describing what the tests cover and any remaining gaps.
-
-  
-## Fuzzy Search Testing
+## Feature 3: Fuzzy Search Testing
 
 - **Feature:** The "Fuzzy match" search dropdown option supports fuzzy search.
 - **Summary:** "Fuzzy match" enables users to input search queries and receive post results with low edit distances (word similarity). It supports input queries that with insertions, deletions, and substitutions. Relevant posts with high word similarity (minimal edit distance) appear. This feature was added to provide users with searching flexibility. Users can have typos into their search queries and still receive relevant post results.
@@ -99,3 +92,47 @@
 	8) Automated tests can be run via `npx mocha test/search-fuzzy.js`
 - **Tests:** test/fuzzy-search.js
 - **Test Sufficiency:** The unit tests test the two core functions getLevenshteinDistance and fuzzyMatches, which contain all fuzzy matching logic. The unit tests cover correctness of edit distance, acceptance of small typos, rejection of unrelated words beyond threshold edit distance, edge cases, and substring matching fallback. 
+
+
+## Feature 4: Listing Respondents to a Post
+
+- **Feature:** A list containing all the users that responded to a post.
+- **Summary:** When someone views a topic page, a small widget in the sidebar lists all unique users who have posted in that topic (the original author and anyone who replied). Each entry shows the user’s avatar and username, as well as links to their profile. This should allow the instructor to, for example, be able to grade the responses quickly.
+- **How it works:** 
+	- **Backend (data storage)**: NodeBB already keeps track of participation using a Redis sorted set:
+
+		- **Key:** `tid:{tid}:posters` (This set stores user IDs (UIDs) and a score that represents how many posts they have in the topic.)
+		- When a post is created (in `src/topics/posts.js`): NodeBB increments the poster’s score using `db.sortedSetIncrBy`.
+		- When a post is deleted: NodeBB decrements the score. If the score becomes 0 or below, that UID is removed from the set. Thus the sorted set always represents the set of users who currently have at least one post in the topic.
+
+	- **Backend (data retrieval)**: `Topics.getUids(tid)` in `src/topics/user.js` reads from the sorted set and returns all UIDs with at least one post ordered by post count (highest first).
+
+		- It uses `db.getSortedSetRevRangeByScore` to do this. 
+		- Then the topic controller (`src/controllers/topics.js`, around lines 140–143):
+			1. calls `topics.getUids(tid)`
+			2. loads basic user info using `user.getUsersFields` (fields: `uid`, `username`, `userslug`, `picture`)
+			3. attaches the result to the topic response as `topicData.respondents`
+
+	- **Frontend (sidebar display)**: A template partial renders the list in the topic sidebar `templates/partials/topic/respondents.tpl`
+
+		- It shows a "Respondents" header (translated using `[[topic:respondents]]`), loops through the respondents array, and renders each user with 24px avatar, username, and link to their profile.
+
+- **How to test:** 
+	- Automated tests: refer to the bulletpoint below
+	- Manual checks
+		1. Create a new topic as User A and view the sidebar -> User A should appear in the respondents list.
+		2. Reply as User B and User C, refresh the page -> All three users should appear (A, B, C).
+		3. Reply again as User B, refresh -> User B should still appear only once (no duplicates).
+		4. Click a username -> It should go to that user’s profile page.
+- **Tests:**
+	- Run the respondents unit tests: `npx mocha test/topics-respondents.js`
+	- Test file: [test/topics-respondents.js](test/topics-respondents.js)
+- **Why tests are sufficient:** The automated tests focus on the backend pipeline that generates the respondents list.
+
+	- **Creator inclusion:** confirms the topic creator is included immediately.
+	- **Reply inclusion:** confirms repliers get added after posting.
+	- **No duplicates:** confirms the same user replying multiple times still shows up once.
+	- **Correct count:** confirms the expected number of unique respondents is returned.
+	- **User data included:** confirms the returned user objects include at least `uid` and `username`.
+	- **Username accuracy:** confirms the usernames match the correct UIDs.
+
