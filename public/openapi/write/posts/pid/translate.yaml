@@ -1,0 +1,47 @@
+get:
+  tags:
+    - posts
+  summary: translate post content to English
+  description: |
+    This operation requests translation metadata for a post.
+
+    The response includes detected source language, target language,
+    translated text, and whether translation was applied.
+  parameters:
+    - in: path
+      name: pid
+      schema:
+        type: string
+      required: true
+      description: a valid post id
+      example: 2
+  responses:
+    '200':
+      description: Post translation data successfully retrieved.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                $ref: ../../../components/schemas/Status.yaml#/Status
+              response:
+                type: object
+                properties:
+                  pid:
+                    type: string
+                    description: post id
+                  sourceLanguage:
+                    type: string
+                    description: detected source language
+                    example: Non-English
+                  targetLanguage:
+                    type: string
+                    description: translation target language
+                    example: English
+                  translatedText:
+                    type: string
+                    description: translated text (or original text on fallback)
+                  wasTranslated:
+                    type: boolean
+                    description: whether translation was applied
