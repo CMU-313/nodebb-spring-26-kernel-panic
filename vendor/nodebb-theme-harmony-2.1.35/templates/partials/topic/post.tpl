@@ -83,6 +83,13 @@
 		<div class="content text-break" component="post/content" itemprop="text">
 			{posts.content}
 		</div>
+		<div class="mt-2">
+			<button component="post/translate" class="btn btn-ghost btn-sm p-0 text-primary">[[search:translate-text]]</button>
+			<div component="post/translation/container" class="mt-2 p-2 border rounded-1 hidden" style="white-space: pre-wrap;">
+				<div class="small text-muted mb-1" component="post/translation/meta"></div>
+				<div component="post/translation/text"></div>
+			</div>
+		</div>
 
 		<div component="post/footer" class="post-footer border-bottom pb-2">
 			{{{ if posts.user.signature }}}

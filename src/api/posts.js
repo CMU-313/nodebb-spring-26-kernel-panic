@@ -85,6 +85,53 @@ postsAPI.getRaw = async (caller, { pid }) => {
 	return result.postData.content;
 };
 
+postsAPI.getTranslation = async (caller, { pid, targetLanguage = 'English' }) => {
+	const userPrivileges = await privileges.posts.get([pid], caller.uid);
+	const userPrivilege = userPrivileges[0];
+	if (!userPrivilege || !userPrivilege['topics:read']) {
+		return null;
+	}
+
+	const postData = await posts.getPostFields(pid, ['content', 'deleted', 'uid']);
+	const selfPost = caller.uid && caller.uid === parseInt(postData.uid, 10);
+	if (postData.deleted && !(userPrivilege.isAdminOrMod || selfPost)) {
+		return null;
+	}
+
+	const sourceText = String(postData.content || '').trim();
+	const translatorUrl = (process.env.TRANSLATOR_URL || 'http://localhost:5001').replace(/\/+$/, '');
+	const timeoutMs = parseInt(process.env.LLM_TRANSLATE_TIMEOUT_MS, 10) || 5000;
+	try {
+		const url = `${translatorUrl}/?content=${encodeURIComponent(sourceText)}`;
+		const response = await fetch(url, {
+			signal: AbortSignal.timeout(timeoutMs),
+		});
+		if (!response.ok) {
+			throw new Error(`Translator service failed with status ${response.status}`);
+		}
+		const data = await response.json();
+		const isEnglish = !!data.is_english;
+		const translatedText = String(data.translated_content || sourceText);
+		const sourceLanguage = isEnglish ? 'English' : 'Non-English';
+
+		return {
+			pid: pid,
+			sourceLanguage: sourceLanguage,
+			targetLanguage: targetLanguage,
+			translatedText: translatedText,
+			wasTranslated: !isEnglish,
+		};
+	} catch (err) {
+		return {
+			pid: pid,
+			sourceLanguage: 'Unknown',
+			targetLanguage: targetLanguage,
+			translatedText: sourceText,
+			wasTranslated: false,
+		};
+	}
+};
+
 postsAPI.edit = async function (caller, data) {
 	if (!data || !data.pid || (meta.config.minimumPostLength !== 0 && !data.content)) {
 		throw new Error('[[error:invalid-data]]');

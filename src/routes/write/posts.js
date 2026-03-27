@@ -17,6 +17,7 @@ module.exports = function () {
 
 	setupApiRoute(router, 'get', '/:pid/index', [middleware.assert.post], controllers.write.posts.getIndex);
 	setupApiRoute(router, 'get', '/:pid/raw', [middleware.assert.post], controllers.write.posts.getRaw);
+	setupApiRoute(router, 'get', '/:pid/translate', [middleware.assert.post], controllers.write.posts.getTranslation);
 	setupApiRoute(router, 'get', '/:pid/summary', [middleware.assert.post], controllers.write.posts.getSummary);
 
 	setupApiRoute(router, 'put', '/:pid/state', middlewares, controllers.write.posts.restore);
