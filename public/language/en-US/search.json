@@ -105,6 +105,10 @@
     "show-results-as": "Show results as",
     "show-results-as-topics": "Show results as topics",
     "show-results-as-posts": "Show results as posts",
+    "translate-text": "Translate text",
+    "translation-loading": "Translating...",
+    "detected-language": "Detected language: %1",
+    "translation-unavailable": "Translation unavailable right now. Showing original text.",
     "see-more-results": "See more results (%1)",
     "search-in-category": "Search in \"%1\""
 }

@@ -74,6 +74,18 @@ Posts.getRaw = async (req, res) => {
 	helpers.formatApiResponse(200, res, { content });
 };
 
+Posts.getTranslation = async (req, res) => {
+	const translation = await api.posts.getTranslation(req, {
+		pid: req.params.pid,
+		targetLanguage: 'English',
+	});
+	if (translation === null) {
+		return helpers.formatApiResponse(404, res, new Error('[[error:no-post]]'));
+	}
+
+	helpers.formatApiResponse(200, res, translation);
+};
+
 Posts.edit = async (req, res) => {
 	const editResult = await api.posts.edit(req, {
 		...req.body,

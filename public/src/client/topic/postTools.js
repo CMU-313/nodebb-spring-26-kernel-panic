@@ -289,6 +289,61 @@ define('forum/topic/postTools', [
 		postContainer.on('click', '[component="post/chat"]', function () {
 			openChat($(this));
 		});
+
+		postContainer.on('click', '[component="post/translate"]', async function (e) {
+			e.preventDefault();
+			await translatePost($(this));
+		});
+	}
+
+	async function translatePost(button) {
+		const postEl = button.parents('[data-pid]');
+		const pid = postEl.attr('data-pid');
+		const container = postEl.find('[component="post/translation/container"]');
+		const metaEl = postEl.find('[component="post/translation/meta"]');
+		const textEl = postEl.find('[component="post/translation/text"]');
+
+		if (!pid || !container.length) {
+			return;
+		}
+
+		if (container.attr('data-loaded') === '1') {
+			container.toggleClass('hidden');
+			return;
+		}
+
+		if (button.attr('data-loading') === '1') {
+			return;
+		}
+
+		try {
+			button.attr('data-loading', '1');
+			const loadingText = await translator.translate('[[search:translation-loading]]');
+			metaEl.text(loadingText);
+			textEl.text('');
+			container.removeClass('hidden');
+
+			const result = await api.get(`/posts/${encodeURIComponent(pid)}/translate`);
+			const language = result && result.sourceLanguage ? result.sourceLanguage : 'Unknown';
+			const translated = result && result.translatedText ? result.translatedText : '';
+			const didTranslate = !!(result && result.wasTranslated);
+
+			const languageText = await translator.translate(`[[search:detected-language, ${language}]]`);
+			metaEl.text(languageText);
+
+			if (didTranslate || translated) {
+				textEl.text(translated || '');
+			} else {
+				textEl.text(await translator.translate('[[search:translation-unavailable]]'));
+			}
+
+			container.attr('data-loaded', '1');
+		} catch (err) {
+			container.addClass('hidden');
+			alerts.error(err);
+		} finally {
+			button.removeAttr('data-loading');
+		}
 	}
 
 	async function onReplyClicked(button, tid) {
