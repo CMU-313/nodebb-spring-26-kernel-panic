@@ -104,6 +104,7 @@
         "nodebb-plugin-composer-latex": "file:vendor/nodebb-plugin-composer-latex",
         "nodebb-plugin-dbsearch": "6.3.4",
         "nodebb-plugin-post-fields-logger": "file:vendor/nodebb-plugin-post-fields-logger",
+        "nodebb-plugin-translator-service": "file:vendor/nodebb-plugin-translator-service",
         "nodebb-plugin-emoji": "6.0.5",
         "nodebb-plugin-emoji-android": "4.1.1",
         "nodebb-plugin-katex": "^0.4.0",
