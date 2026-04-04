@@ -136,3 +136,38 @@
 	- **User data included:** confirms the returned user objects include at least `uid` and `username`.
 	- **Username accuracy:** confirms the usernames match the correct UIDs.
 
+
+## Feature 5: Translate Post
+
+- **Feature:** English post translation via an external translator microservice.
+- **Summary:** Under each post there's a "Translate text" button. Clicking it sends the post content to an external translation microservice, which detects the language and returns an English translation. The result is shown inline below the post. If the translation service is unavailable or times out, the original text is displayed with a fallback message.
+- **How it works:**
+	- **Backend - API Endpoint:** A `GET /api/v3/posts/{pid}/translate` route is registered in [src/routes/write/posts.js](src/routes/write/posts.js). The controller in [src/controllers/write/posts.js](src/controllers/write/posts.js) delegates to `api.posts.getTranslation()`.
+	- **Backend - Translation Logic:** In [src/api/posts.js](src/api/posts.js) (lines 88–133), `postsAPI.getTranslation` performs the following:
+		1. Checks `topics:read` privilege for the calling user.
+		2. Fetches post content (respecting deleted-post visibility for admins/mods and post owners).
+		3. Calls the external translator microservice at `TRANSLATOR_URL` (default: `http://128.2.220.236:5001`) with the post content as a query parameter: `GET {TRANSLATOR_URL}/?content={encodedText}`.
+		4. Parses the microservice JSON response (`is_english`, `translated_content`) and returns a response object containing `pid`, `sourceLanguage`, `targetLanguage`, `translatedText`, and `wasTranslated`.
+		5. On any error or timeout (default 5 seconds, configurable via `LLM_TRANSLATE_TIMEOUT_MS`), gracefully falls back to returning the original text with `wasTranslated: false`.
+	- **Frontend - Translate Button:** The post template in [vendor/nodebb-theme-harmony-main/templates/partials/topic/post.tpl](vendor/nodebb-theme-harmony-main/templates/partials/topic/post.tpl) (lines 87–92) includes a "Translate text" button (`[component="post/translate"]`) and a hidden container for displaying results.
+	- **Frontend - Click Handler:** In [public/src/client/topic/postTools.js](public/src/client/topic/postTools.js) (lines 293–347), clicking the button calls `GET /api/v3/posts/{pid}/translate`. On success, it shows the detected language and translated text in the collapsible container. Subsequent clicks toggle the container's visibility. On failure, it displays "Translation unavailable right now. Showing original text."
+	- **Configuration:** Two environment variables control the feature:
+		- `TRANSLATOR_URL` — URL of the translation microservice (default: `http://128.2.220.236:5001`)
+		- `LLM_TRANSLATE_TIMEOUT_MS` — Request timeout in milliseconds (default: `5000`)
+- **How to test:**
+	1. Ensure the translator microservice is running (locally at `http://localhost:5001` or at the default CMU address).
+	2. Start NodeBB (`./nodebb dev`) with `TRANSLATOR_URL` set if using a local service.
+	3. Create a post with non-English text (e.g., "Hola mundo, esta es una prueba").
+	4. View the topic and click "Translate text" below the post.
+	5. The detected language ("Non-English") and translated English text should appear in a bordered container below the post.
+	6. Click the button again to toggle the translation container visibility.
+	7. Test fallback: stop the translator service and click "Translate text" on a post — the message "Translation unavailable right now. Showing original text." should appear with the original content.
+	8. Verify that deleted posts cannot be translated by non-privileged users, and that admins/mods can still translate deleted posts.
+- **Tests:** The feature does not currently have dedicated automated tests. Testing is manual as described above.
+- **Key files:**
+	- [src/api/posts.js](src/api/posts.js) — Backend translation logic
+	- [src/controllers/write/posts.js](src/controllers/write/posts.js) — HTTP controller
+	- [src/routes/write/posts.js](src/routes/write/posts.js) — Route registration
+	- [public/src/client/topic/postTools.js](public/src/client/topic/postTools.js) — Frontend click handler and UI logic
+	- [vendor/nodebb-theme-harmony-main/templates/partials/topic/post.tpl](vendor/nodebb-theme-harmony-main/templates/partials/topic/post.tpl) — Post template with translate button
+	- [public/openapi/write/posts/pid/translate.yaml](public/openapi/write/posts/pid/translate.yaml) — OpenAPI specification
